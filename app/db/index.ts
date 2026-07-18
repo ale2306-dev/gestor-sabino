@@ -1,5 +1,5 @@
 import { MongoClient, ServerApiVersion } from 'mongodb';
-process.loadEnvFile()
+
 const uri = process.env.MONGO_DB_URI as string;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
