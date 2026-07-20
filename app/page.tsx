@@ -2,6 +2,8 @@ import { collection } from "./db";
 import diffDays from "./lib/actions";
 import ObsButton from "./components/ObsButton";
 
+export const dynamic = 'force-dynamic'
+
 export default async function InvoiceTable({
   searchParams,
 }: {
