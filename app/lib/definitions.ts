@@ -4,6 +4,7 @@ export interface InvoiceData {
   monto: number;
   cliente: string;
   fechad?: string;
+  fechat?: string;
   fechap?: string;
   obs?: string;
 }

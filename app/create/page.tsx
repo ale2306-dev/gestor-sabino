@@ -5,7 +5,7 @@ import { InvoiceData } from "../lib/definitions";
 
 export default function InvoiceForm(){
 
-  const [datos, setDatos] = useState<InvoiceData>({id:"",cliente:"",fechad:"",fechap:"",monto:0,obs:""})
+  const [datos, setDatos] = useState<InvoiceData>({id:"",cliente:"",fechad:"",fechat:"",fechap:"",monto:0,obs:""})
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -68,7 +68,7 @@ export default function InvoiceForm(){
             {/* Campo: Factura */}
             <div>
               <label className="block text-gray-700 text-sm font-bold mb-2 uppercase" htmlFor="factura">
-                No. Factura
+                No. Factura o Nota
               </label>
               <input 
                 onChange={handleChange}
@@ -125,6 +125,20 @@ export default function InvoiceForm(){
               />
             </div>
 
+            {/* Campo: Fecha Tope de Pago */}
+            <div>
+              <label className="block text-gray-700 text-sm font-bold mb-2 uppercase" htmlFor="fPagot">
+                Fecha de Tope de Pago
+              </label>
+              <input 
+                onChange={handleChange}
+                className="w-full px-3 py-2 border text-black border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all"
+                id="fPagot"
+                name="fechat"
+                type="date" 
+              />
+            </div>
+
             {/* Campo: Fecha de Pago */}
             <div>
               <label className="block text-gray-700 text-sm font-bold mb-2 uppercase" htmlFor="fPago">
@@ -138,6 +152,8 @@ export default function InvoiceForm(){
                 type="date" 
               />
             </div>
+
+            
 
             {/* Campo: Observaciones (Nuevo bloque solicitado) */}
             <div className="md:col-span-2">

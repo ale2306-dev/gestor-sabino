@@ -9,6 +9,7 @@ type Invoice = {
   monto?: number;
   cliente?: string;
   fechad?: string;
+  fechat?: string;
   fechap?: string;
   obs?: string;
 };
@@ -19,6 +20,7 @@ export default function EditInvoiceFormClient({ initialData }: { initialData: In
     monto: initialData.monto ?? 0,
     cliente: initialData.cliente ?? "",
     fechad: initialData.fechad ?? "",
+    fechat: initialData.fechat ?? "",
     fechap: initialData.fechap ?? "",
     obs: initialData.obs?? "",
   });
@@ -98,7 +100,7 @@ const confirmDelete = async () => {
             {/* Campo: Factura (Editable) */}
             <div>
               <label className="block text-gray-700 text-sm font-bold mb-2 uppercase" htmlFor="id">
-                No. Factura
+                No. Factura o Nota
               </label>
               <input 
                 name="id"
@@ -169,6 +171,19 @@ const confirmDelete = async () => {
               />
             </div>
 
+            {/* Campo: Fecha Tope de Pago */}
+            <div>
+              <label className="block text-gray-700 text-sm font-bold mb-2 uppercase" htmlFor="fechat">
+                Fecha de Tope de Pago
+              </label>
+              <input 
+                name="fechat"
+                value={formData.fechat}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent transition-all"
+                type="date" 
+              />
+            </div>
             {/* Campo: Fecha de Pago */}
             <div>
               <label className="block text-gray-700 text-sm font-bold mb-2 uppercase" htmlFor="fechap">
@@ -177,6 +192,19 @@ const confirmDelete = async () => {
               <input 
                 name="fechap"
                 value={formData.fechap}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent transition-all"
+                type="date" 
+              />
+            </div>
+
+            <div>
+              <label className="block text-gray-700 text-sm font-bold mb-2 uppercase" htmlFor="fechat">
+                Fecha de Tope de Pago
+              </label>
+              <input 
+                name="fechat"
+                value={formData.fechat}
                 onChange={handleChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent transition-all"
                 type="date" 

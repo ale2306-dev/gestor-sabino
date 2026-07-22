@@ -82,6 +82,7 @@ export default async function InvoiceTable({
               <th className="py-3 px-3 md:px-6 text-left">Factura</th>
               <th className="py-3 px-3 md:px-6 text-left">Cliente</th>
               <th className="py-3 px-6 text-center hidden md:table-cell">Fecha Despacho</th>
+              <th className="py-3 px-6 text-center hidden md:table-cell">Fecha Tope Pago</th>
               <th className="py-3 px-6 text-center hidden md:table-cell">Fecha Pago</th>
               <th className="py-3 px-3 md:px-6 text-center">Días sin Pagar</th>
               <th className="py-3 px-3 md:px-6 text-right">Monto</th>
@@ -103,7 +104,9 @@ export default async function InvoiceTable({
                   <td className="py-3 px-3 md:px-6 text-left whitespace-nowrap">{item.cliente}</td>
                   
                   <td className="py-3 px-6 text-center hidden md:table-cell">{item.fechad}</td>
+                  <td className="py-3 px-6 text-center hidden md:table-cell">{item.fechat}</td>
                   <td className="py-3 px-6 text-center hidden md:table-cell">{`${item.fechap === "" ? "Pendiente" : item.fechap}`}</td>
+                  
                   
                   <td className="py-3 px-3 md:px-6 text-center whitespace-nowrap">
                     <span className={`${diffDays(item.fechad,item.fechap) > 30 && item.fechap === "" ? 'bg-red-200 text-red-600' : 'bg-green-200 text-green-600'} py-1 px-2 md:px-3 rounded-full text-[10px] md:text-xs`}>
