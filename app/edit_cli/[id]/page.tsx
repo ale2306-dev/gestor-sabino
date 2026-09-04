@@ -22,7 +22,14 @@ export default async function Page({params} : Props){
   }
 
   const serializable = {
-    ...doc,
+    rif: doc.rif ?? "",
+    nombre: doc.nombre ?? "",
+    direccion: doc.direccion ?? "",
+    telefono: doc.telefono ?? "",
+    zonaCobranza: doc.zonaCobranza ?? "",
+    ciudad: doc.ciudad ?? "",
+    diasVisita: doc.diasVisita ?? "",
+    frecuenciaVisita: doc.frecuenciaVisita ?? "",
     _id: doc._id?.toString?.() ?? null,
   };
 
