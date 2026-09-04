@@ -13,10 +13,13 @@ export default async function DashboardTable({
   const query = params?.q || "";
   const view = params?.view || "invoices"; 
 
-  // Consultas según la vista activa
+  // Consultas globales
+  const totalClients = await cli_collection.countDocuments();
+  
   let data = [];
   let totalDocs = 0;
 
+  // Consultas según la vista activa
   if (view === "invoices") {
     totalDocs = await inv_collection.countDocuments();
     const filter = query
@@ -29,7 +32,7 @@ export default async function DashboardTable({
       : {};
     data = await inv_collection.find(filter).toArray();
   } else {
-    totalDocs = await cli_collection.countDocuments();
+    totalDocs = totalClients; // Ya lo calculamos arriba
     const filter = query
       ? {
           $or: [
@@ -69,32 +72,75 @@ export default async function DashboardTable({
           </a>
         </div>
 
-        <a href={view === "invoices" ? "/create" : "/create_cli"}>
-          <button className="px-6 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition-all font-semibold shadow-md active:scale-95 flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
-            </svg>
-            Nuevo {view === "invoices" ? "Registro" : "Cliente"}
-          </button>
-        </a>
+        {/* Lógica del botón de nuevo registro */}
+        {view === "invoices" ? (
+          totalClients === 0 ? (
+            <button 
+              disabled 
+              className="px-6 py-2 bg-gray-400 text-white rounded-lg cursor-not-allowed font-semibold shadow-sm flex items-center"
+              title="Debes crear un cliente primero"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+              </svg>
+              Nuevo Registro
+            </button>
+          ) : (
+            <a href="/create">
+              <button className="px-6 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition-all font-semibold shadow-md active:scale-95 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+                </svg>
+                Nuevo Registro
+              </button>
+            </a>
+          )
+        ) : (
+          <a href="/cli_create">
+            <button className="px-6 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition-all font-semibold shadow-md active:scale-95 flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+              </svg>
+              Nuevo Cliente
+            </button>
+          </a>
+        )}
       </div>
 
       {/* Estado vacío total (Si no hay nada en la BD para esa colección) */}
       {totalDocs === 0 ? (
         <div className="bg-white p-8 rounded-lg shadow-lg text-center max-w-md w-full border-t-4 border-gray-800 mt-10">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">¡Tabla Vacía!</h2>
-          <p className="text-gray-600 mb-8">
-            Aún no tienes {view === "invoices" ? "facturas registradas" : "clientes registrados"} en el sistema.
-          </p>
-          <a href={view === "invoices" ? "/create" : "/clients/create"}>
-            <button className="w-full p-3 bg-gray-800 text-white rounded-xl hover:bg-gray-900 transition-all font-semibold transform active:scale-95">
-              Crear el primero
-            </button>
-          </a>
+          
+          {view === "invoices" && totalClients === 0 ? (
+            <>
+              <h2 className="text-2xl font-bold text-gray-800 mb-4">¡Faltan Clientes!</h2>
+              <p className="text-gray-600 mb-8">
+                Para poder facturar, primero necesitas registrar al menos un cliente en el sistema.
+              </p>
+              <a href="/cli_create">
+                <button className="w-full p-3 bg-gray-800 text-white rounded-xl hover:bg-gray-900 transition-all font-semibold transform active:scale-95">
+                  Registrar mi primer cliente
+                </button>
+              </a>
+            </>
+          ) : (
+            <>
+              <h2 className="text-2xl font-bold text-gray-800 mb-4">¡Tabla Vacía!</h2>
+              <p className="text-gray-600 mb-8">
+                Aún no tienes {view === "invoices" ? "facturas registradas" : "clientes registrados"} en el sistema.
+              </p>
+              <a href={view === "invoices" ? "/create" : "/create_cli"}>
+                <button className="w-full p-3 bg-gray-800 text-white rounded-xl hover:bg-gray-900 transition-all font-semibold transform active:scale-95">
+                  Crear el primero
+                </button>
+              </a>
+            </>
+          )}
+
         </div>
       ) : (
         <>
-          {/* Formulario de búsqueda (mantiene el state del view actual) */}
+          {/* Formulario de búsqueda */}
           <form method="GET" className="w-full max-w-5xl flex gap-2">
             <input type="hidden" name="view" value={view} />
             <input
@@ -121,7 +167,6 @@ export default async function DashboardTable({
           <div className="overflow-x-auto w-full max-w-5xl bg-white shadow-lg rounded-lg">
             <table className="w-full table-auto min-w-[600px] md:min-w-full">
               <thead className="bg-gray-800 text-white uppercase text-xs md:text-sm leading-normal">
-                
                 {/* Cabeceras Dinámicas */}
                 {view === "invoices" ? (
                   <tr>
@@ -157,7 +202,6 @@ export default async function DashboardTable({
                 ) : (
                   data.map((item, index) => (
                     <tr key={index} className="border-b border-gray-200 hover:bg-gray-100 transition-colors">
-                      
                       {/* Filas Dinámicas */}
                       {view === "invoices" ? (
                         <>
