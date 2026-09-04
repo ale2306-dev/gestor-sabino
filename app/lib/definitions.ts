@@ -8,3 +8,14 @@ export interface InvoiceData {
   fechap?: string;
   obs?: string;
 }
+
+export interface ClientData {
+  rif: string;
+  nombre: string;
+  direccion: string;
+  telefono: string;
+  zonaCobranza: string;
+  ciudad: string;
+  diasVisita: string;
+  frecuenciaVisita: string;
+}

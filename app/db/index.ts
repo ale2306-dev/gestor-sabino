@@ -27,7 +27,7 @@ export async function run() {
 
 const db = client.db("gestorDB")
 
-export const collection = db.collection("clientes")
-
+export const inv_collection = db.collection("invoices")
+export const cli_collection = db.collection("clients")
 
 

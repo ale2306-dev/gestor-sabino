@@ -1,5 +1,5 @@
 import EditInvoiceFormClient from "../editForm";
-import { collection } from "@/app/db/index"
+import { inv_collection } from "@/app/db/index"
 
 type Props = {params: {id?: string|string[]}}
 
@@ -11,7 +11,7 @@ export default async function Page({params} : Props){
     return <div className="min-h-screen flex items-center justify-center">ID no proporcionado</div>;
   }
 
-  const doc = await collection.findOne({id: elementId})
+  const doc = await inv_collection.findOne({id: elementId})
   if (!doc){
     return <div className="min-h-screen flex items-center justify-center">Elemento no encontrado</div>;
   }

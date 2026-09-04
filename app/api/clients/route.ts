@@ -1,11 +1,11 @@
-import { inv_collection } from "../../db";
+import { cli_collection } from "../../db";
 
 export async function POST(request: Request) {
   try {
     const data = await request.json();
 
     // Inserta en la colección (server-side)
-    const result = await inv_collection.insertOne(data);
+    const result = await cli_collection.insertOne(data);
 
     return new Response(JSON.stringify({ insertedId: result.insertedId }), { status: 201 });
   } catch (err) {
@@ -17,19 +17,19 @@ export async function POST(request: Request) {
 export async function GET(request: Request) {
     try {
         const url = new URL(request.url);
-        const id = url.searchParams.get('id');
-        if (id) {
-            const doc = await inv_collection.findOne({id: id});
+        const rif = url.searchParams.get('rif');
+        
+        if (rif) {
+            const doc = await cli_collection.findOne({ rif: rif });
             if (!doc) {
                 return new Response(JSON.stringify({ error: 'Not found' }), { status: 404 });
             }
 
             console.log(JSON.stringify(doc))
             return new Response(JSON.stringify(doc), { status: 200 });
-
   
         } else {
-            const docs = await inv_collection.find({}).toArray();
+            const docs = await cli_collection.find({}).toArray();
             return new Response(JSON.stringify(docs), { status: 200 });
         }
     } catch (err) {
@@ -41,10 +41,10 @@ export async function GET(request: Request) {
 export async function PATCH(request: Request) {
     try {
         const url = new URL(request.url);
-        const id = url.searchParams.get('id');
+        const rif = url.searchParams.get('rif');
 
-        if (!id) {
-            return new Response(JSON.stringify({ error: 'Missing id' }), { status: 400 });
+        if (!rif) {
+            return new Response(JSON.stringify({ error: 'Missing RIF' }), { status: 400 });
         }
 
         const updates = await request.json();
@@ -52,14 +52,13 @@ export async function PATCH(request: Request) {
             return new Response(JSON.stringify({ error: 'No update fields provided' }), { status: 400 });
         }
 
-
-        const result = await inv_collection.updateOne({ id: id }, { $set: updates });
+        const result = await cli_collection.updateOne({ rif: rif }, { $set: updates });
 
         if (result.matchedCount === 0) {
             return new Response(JSON.stringify({ error: 'Not found' }), { status: 404 });
         }
 
-        const updatedDoc = await inv_collection.findOne({ id: id });
+        const updatedDoc = await cli_collection.findOne({ rif: rif });
         return new Response(JSON.stringify(updatedDoc), { status: 200 });
     } catch (err) {
         console.error(err);
@@ -70,13 +69,13 @@ export async function PATCH(request: Request) {
 export async function DELETE(request: Request) {
     try {
         const url = new URL(request.url);
-        const id = url.searchParams.get('id');
+        const rif = url.searchParams.get('rif');
 
-        if (!id) {
-            return new Response(JSON.stringify({ error: 'Missing id' }), { status: 400 });
+        if (!rif) {
+            return new Response(JSON.stringify({ error: 'Missing RIF' }), { status: 400 });
         }
 
-        const result = await inv_collection.deleteOne({ id: id });
+        const result = await cli_collection.deleteOne({ rif: rif });
 
         if (result.deletedCount === 0) {
             return new Response(JSON.stringify({ error: 'Not found' }), { status: 404 });
