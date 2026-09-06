@@ -1,3 +1,5 @@
+
+// Definición para los Pedidos
 export interface InvoiceData {
   _id?: string;
   id: string;
@@ -8,10 +10,10 @@ export interface InvoiceData {
   fechap?: string;
   obs?: string;
 }
-
+// Definición para los Clientes
 export interface ClientData {
   rif: string;
-  nombre: string;
+  cliente: string;
   direccion: string;
   telefono: string;
   zonaCobranza: string;

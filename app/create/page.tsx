@@ -5,12 +5,15 @@ import { InvoiceData, ClientData } from "../lib/definitions";
 
 export default function InvoiceForm(){
 
+  //useState de datos del formulario
   const [datos, setDatos] = useState<InvoiceData>({id:"",cliente:"",fechad:"",fechat:"",fechap:"",monto:0,obs:""})
+  //useState de clientes
   const [clientes, setClientes] = useState<ClientData[]>([]);
+  //useState de modales
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Buscar clientes al montar el componente
+  // Buscar clientes en la DB
   useEffect(() => {
     const fetchClientes = async () => {
       try {
@@ -25,7 +28,7 @@ export default function InvoiceForm(){
     fetchClientes();
   }, []);
 
-  // Nota que ahora aceptamos HTMLSelectElement
+  // Rellenar formulario cada que se actualiza el valor del input
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const name = e.currentTarget.name as keyof InvoiceData
     let value: string | number = e.currentTarget.value
@@ -35,6 +38,7 @@ export default function InvoiceForm(){
     setDatos(prev => ({ ...prev, [name]: value }));
   }
 
+  // Enviar datos a la DB
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     
@@ -71,7 +75,7 @@ export default function InvoiceForm(){
         <form onSubmit={handleSubmit} className="p-4 md:p-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             
-            {/* Campo: Factura */}
+            {/*  Factura */}
             <div>
               <label className="block text-gray-700 text-sm font-bold mb-2 uppercase" htmlFor="factura">
                 No. Factura o Nota
@@ -87,7 +91,7 @@ export default function InvoiceForm(){
               />
             </div>
 
-            {/* Campo: Monto */}
+            {/* Monto */}
             <div>
               <label className="block text-gray-700 text-sm font-bold mb-2 uppercase" htmlFor="monto">
                 Monto ($)
@@ -104,7 +108,7 @@ export default function InvoiceForm(){
               />
             </div>
 
-            {/* Campo: Cliente (Desplegable) */}
+            {/* Cliente  */}
             <div className="md:col-span-2">
               <label className="block text-gray-700 text-sm font-bold mb-2 uppercase" htmlFor="cliente">
                 Cliente
@@ -120,13 +124,13 @@ export default function InvoiceForm(){
                 <option value="" disabled>-- Selecciona un cliente --</option>
                 {clientes.map((cli) => (
                   <option key={cli.rif} value={cli.rif}>
-                    {cli.nombre} (RIF: {cli.rif})
+                    {cli.cliente} (RIF: {cli.rif})
                   </option>
                 ))}
               </select>
             </div>
 
-            {/* Campo: Fecha de Despacho */}
+            {/* Fecha de Despacho */}
             <div>
               <label className="block text-gray-700 text-sm font-bold mb-2 uppercase" htmlFor="fDespacho">
                 Fecha de Despacho
@@ -140,7 +144,7 @@ export default function InvoiceForm(){
               />
             </div>
 
-            {/* Campo: Fecha Tope de Pago */}
+            {/* Fecha Tope de Pago */}
             <div>
               <label className="block text-gray-700 text-sm font-bold mb-2 uppercase" htmlFor="fPagot">
                 Fecha de Tope de Pago
@@ -154,7 +158,7 @@ export default function InvoiceForm(){
               />
             </div>
 
-            {/* Campo: Fecha de Pago */}
+            {/* Fecha de Pago */}
             <div>
               <label className="block text-gray-700 text-sm font-bold mb-2 uppercase" htmlFor="fPago">
                 Fecha de Pago
@@ -168,7 +172,7 @@ export default function InvoiceForm(){
               />
             </div>
 
-            {/* Campo: Observaciones */}
+            {/* Observaciones */}
             <div className="md:col-span-2">
               <label className="block text-gray-700 text-sm font-bold mb-2 uppercase" htmlFor="observaciones">
                 Observaciones
@@ -189,8 +193,12 @@ export default function InvoiceForm(){
 
           </div>
 
+
+
+          {/* Botones */}
           <div className="flex items-center justify-end mt-8 space-x-4">
-            <a href=".">
+           {/* Cancelar */} 
+           <a href=".">
               <button 
                 type="button" 
                 className="px-6 py-2 text-gray-600 bg-gray-200 hover:bg-gray-300 rounded-lg font-semibold transition-colors"
@@ -198,6 +206,8 @@ export default function InvoiceForm(){
                 Cancelar
               </button>
             </a>
+
+            {/* Subir */}
             <button 
               type="submit" 
               disabled={isSubmitting}
@@ -216,6 +226,7 @@ export default function InvoiceForm(){
         </form>
       </div>
 
+      {/* Modal de Success */}
       {showSuccessModal && (
         <div className="fixed inset-0 flex items-center justify-center z-50 transition-opacity" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
           <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-sm text-center">

@@ -1,10 +1,11 @@
 import { cli_collection } from "../../db";
 
+
+// Método POST
 export async function POST(request: Request) {
   try {
     const data = await request.json();
 
-    // Inserta en la colección (server-side)
     const result = await cli_collection.insertOne(data);
 
     return new Response(JSON.stringify({ insertedId: result.insertedId }), { status: 201 });
@@ -14,6 +15,7 @@ export async function POST(request: Request) {
   }
 }
 
+// Método GET
 export async function GET(request: Request) {
     try {
         const url = new URL(request.url);
@@ -38,6 +40,7 @@ export async function GET(request: Request) {
     }
 }
 
+// Método PATCH
 export async function PATCH(request: Request) {
     try {
         const url = new URL(request.url);
@@ -66,6 +69,7 @@ export async function PATCH(request: Request) {
     }
 }
 
+// Método DELETE
 export async function DELETE(request: Request) {
     try {
         const url = new URL(request.url);

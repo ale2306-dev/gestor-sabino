@@ -7,14 +7,13 @@ type Props = { id: string };
 
 export default function ObsButton({ id }: Props) {
   const [loading, setLoading] = useState(false);
-  const [mounted, setMounted] = useState(false); // controla si el modal está montado
-  const [isOpen, setIsOpen] = useState(false);   // controla estado activo (clases)
+  const [mounted, setMounted] = useState(false); 
+  const [isOpen, setIsOpen] = useState(false); 
   const [obs, setObs] = useState<string | null>(null);
   const closeBtnRef = useRef<HTMLButtonElement | null>(null);
 
-  const ANIM_DURATION = 300; // ms -> coincide con las clases duration-300
+  const ANIM_DURATION = 300; 
 
-  // Abrir modal: fetch y animación de entrada
   const handleClick = async () => {
     if (!id) return;
     setLoading(true);
@@ -29,11 +28,11 @@ export default function ObsButton({ id }: Props) {
       const fetchedObs = data.obs ?? data.observaciones ?? "Sin observaciones";
       setObs(String(fetchedObs));
 
-      // Montar y activar transición
+     
       setMounted(true);
-      // next frame para que las clases de entrada se apliquen correctamente
+     
       requestAnimationFrame(() => setIsOpen(true));
-      // focus en el botón cerrar cuando abra
+      
       setTimeout(() => closeBtnRef.current?.focus(), ANIM_DURATION);
     } catch (err) {
       console.error(err);
@@ -43,10 +42,10 @@ export default function ObsButton({ id }: Props) {
     }
   };
 
-  // Cerrar modal con animación de salida
+  
   const close = () => {
-    setIsOpen(false); // aplica clases de salida
-    // esperar a que termine la animación y desmontar
+    setIsOpen(false); 
+    
     setTimeout(() => {
       setMounted(false);
       setObs(null);

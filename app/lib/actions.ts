@@ -1,35 +1,15 @@
 import { parseISO, differenceInCalendarDays } from "date-fns";
 
+// Calcular diferencia de días entre fechas
 export default function diffDays(a: string, b: string){
 
-  const dateNow = new Date()
+  if (!a) return 0;
+  const dateNow = new Date();
   if (b){
-    return differenceInCalendarDays(parseISO(b), parseISO(a))
+    return differenceInCalendarDays(parseISO(b), parseISO(a));
   }
   else{
-    return differenceInCalendarDays(dateNow, parseISO(a))
+    return differenceInCalendarDays(dateNow, parseISO(a));
   }
 }
-
-export async function getData(id: string | undefined){
-
-    let data = {}
-    try {
-
-
-      const res = await fetch(`/api/invoices?id=${encodeURIComponent(String(id))}`, {
-        method: 'GET',
-      })
-      
-      if (!res.ok) throw new Error(`Error en la petición: ${res.status}`)
- 
-      data = await res.json()
-      console.log("datos:", data)
-
-    } catch(err) {
-      console.error(err)
-    }
-
-    return data
-  }
 

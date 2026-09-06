@@ -1,6 +1,7 @@
 import { inv_collection, cli_collection } from "./db";
 import diffDays from "./lib/actions";
 import ObsButton from "./components/ObsButton";
+import OverdueNotifications from "./components/OverdueNotification";
 
 export const dynamic = 'force-dynamic';
 
@@ -9,35 +10,66 @@ export default async function DashboardTable({
 }: {
   searchParams?: Promise<{ q?: string; view?: string }>;
 }) {
+
   const params = await searchParams;
   const query = params?.q || "";
   const view = params?.view || "invoices"; 
 
-  // Consultas globales
+  const today = new Date().toISOString().split("T")[0];
+  const overdueDocs = await inv_collection.find({
+    fechap: "", 
+    fechat: { $lt: today, $ne: "" } 
+  }).toArray();
+
+  const overdueInvoices = overdueDocs.map(doc => ({
+    id: doc.id,
+    cliente: doc.cliente,
+    fechat: doc.fechat
+  }));
+
   const totalClients = await cli_collection.countDocuments();
   
   let data = [];
   let totalDocs = 0;
 
-  // Consultas según la vista activa
+  // Buscar Datos según vista
   if (view === "invoices") {
     totalDocs = await inv_collection.countDocuments();
+    
+    data = await inv_collection.aggregate([
+      {
+        $lookup: {
+          from: "clients", 
+          localField: "cliente", 
+          foreignField: "rif",   
+          as: "datos_cliente"   
+        }
+      },
+      {
+        $unwind: {
+          path: "$datos_cliente",
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $match: query ? {
+          $or: [
+            { id: { $regex: query, $options: "i" } },
+            { "datos_cliente.cliente": { $regex: query, $options: "i" } } 
+          ]
+        } : {}
+      }
+    ]).toArray();
+  } else {
+    totalDocs = totalClients;
     const filter = query
       ? {
           $or: [
             { cliente: { $regex: query, $options: "i" } },
-            { id: { $regex: query, $options: "i" } },
-          ],
-        }
-      : {};
-    data = await inv_collection.find(filter).toArray();
-  } else {
-    totalDocs = totalClients; // Ya lo calculamos arriba
-    const filter = query
-      ? {
-          $or: [
-            { nombre: { $regex: query, $options: "i" } },
             { rif: { $regex: query, $options: "i" } },
+            { zonaCobranza: { $regex: query, $options: "i" } },
+            { ciudad: { $regex: query, $options: "i" } },
+            { zonaCobranza: { $regex: query, $options: "i" } },
           ],
         }
       : {};
@@ -46,8 +78,9 @@ export default async function DashboardTable({
 
   return (
     <div className="min-h-screen flex flex-col gap-6 items-center justify-start bg-gray-100 p-2 md:p-8">
-      
-      {/* Controles superiores: Tabs de navegación */}
+      <OverdueNotifications invoices={overdueInvoices} />
+
+      {/* Controles de navegación para cambiar de vista*/}
       <div className="w-full max-w-5xl flex flex-col md:flex-row justify-between items-center bg-white p-4 rounded-lg shadow-sm">
         <div className="flex space-x-2 mb-4 md:mb-0">
           <a
@@ -58,7 +91,7 @@ export default async function DashboardTable({
                 : "bg-gray-200 text-gray-700 hover:bg-gray-300"
             }`}
           >
-            Facturas
+            Pedidos
           </a>
           <a
             href="?view=clients"
@@ -72,7 +105,7 @@ export default async function DashboardTable({
           </a>
         </div>
 
-        {/* Lógica del botón de nuevo registro */}
+        {/* Botón de nuevo registro */}
         {view === "invoices" ? (
           totalClients === 0 ? (
             <button 
@@ -96,7 +129,7 @@ export default async function DashboardTable({
             </a>
           )
         ) : (
-          <a href="/cli_create">
+          <a href="/create_cli">
             <button className="px-6 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition-all font-semibold shadow-md active:scale-95 flex items-center">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
@@ -107,7 +140,7 @@ export default async function DashboardTable({
         )}
       </div>
 
-      {/* Estado vacío total (Si no hay nada en la BD para esa colección) */}
+      {/* Vista sin elementos en la DB */}
       {totalDocs === 0 ? (
         <div className="bg-white p-8 rounded-lg shadow-lg text-center max-w-md w-full border-t-4 border-gray-800 mt-10">
           
@@ -117,7 +150,7 @@ export default async function DashboardTable({
               <p className="text-gray-600 mb-8">
                 Para poder facturar, primero necesitas registrar al menos un cliente en el sistema.
               </p>
-              <a href="/cli_create">
+              <a href="/create_cli">
                 <button className="w-full p-3 bg-gray-800 text-white rounded-xl hover:bg-gray-900 transition-all font-semibold transform active:scale-95">
                   Registrar mi primer cliente
                 </button>
@@ -140,14 +173,14 @@ export default async function DashboardTable({
         </div>
       ) : (
         <>
-          {/* Formulario de búsqueda */}
+          {/* Barra de Búsqueda */}
           <form method="GET" className="w-full max-w-5xl flex gap-2">
             <input type="hidden" name="view" value={view} />
             <input
               type="text"
               name="q"
               defaultValue={query}
-              placeholder={`Buscar por ${view === "invoices" ? "cliente o número de factura" : "nombre o RIF"}...`}
+              placeholder={`Buscar por ${view === "invoices" ? "cliente o número de factura" : "RIF, nombre, zona de cobranza o ciudad"}...`}
               className="w-full px-4 py-2 border border-gray-300 text-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
             />
             <button
@@ -163,11 +196,11 @@ export default async function DashboardTable({
             )}
           </form>
 
-          {/* Contenedor de la Tabla */}
+          {/* Tabla */}
           <div className="overflow-x-auto w-full max-w-5xl bg-white shadow-lg rounded-lg">
             <table className="w-full table-auto min-w-[600px] md:min-w-full">
               <thead className="bg-gray-800 text-white uppercase text-xs md:text-sm leading-normal">
-                {/* Cabeceras Dinámicas */}
+                {/* Cabeceras de la Tabla */}
                 {view === "invoices" ? (
                   <tr>
                     <th className="py-3 px-3 md:px-6 text-left">Factura</th>
@@ -201,17 +234,17 @@ export default async function DashboardTable({
                   </tr>
                 ) : (
                   data.map((item, index) => (
-                    <tr key={index} className="border-b border-gray-200 hover:bg-gray-100 transition-colors">
-                      {/* Filas Dinámicas */}
+                    <tr key={index} className={`${diffDays(item.fechad,item.fechap) > diffDays(item.fechad,item.fechat) && item.fechap === "" && view === "invoices" ?  'bg-red-200 hover:bg-red-300' : item.fechap != "" && view === "invoices" ? 'bg-green-100 hover:bg-green-200' : 'bg-white hover:bg-gray-200'} border-b border-gray-200   transition-colors`}>
+                      {/* Filas de la Tabla */}
                       {view === "invoices" ? (
                         <>
                           <td className="py-3 px-3 md:px-6 text-left whitespace-nowrap font-medium">{item.id}</td>
-                          <td className="py-3 px-3 md:px-6 text-left whitespace-nowrap">{item.cliente}</td>
+                          <td className="py-3 px-3 md:px-6 text-left whitespace-nowrap">{item.datos_cliente?.cliente}</td>
                           <td className="py-3 px-6 text-center hidden md:table-cell">{item.fechad}</td>
-                          <td className="py-3 px-6 text-center hidden md:table-cell">{item.fechat}</td>
+                          <td className={`${diffDays(item.fechad,item.fechap) > diffDays(item.fechad,item.fechat) && item.fechap === "" ?  'text-red-600 font-bold' : 'text-gray-600'} py-3 px-6 text-center hidden md:table-cell`}>{item.fechat}</td>
                           <td className="py-3 px-6 text-center hidden md:table-cell">{`${item.fechap === "" ? "Pendiente" : item.fechap}`}</td>
                           <td className="py-3 px-3 md:px-6 text-center whitespace-nowrap">
-                            <span className={`${diffDays(item.fechad,item.fechap) > 30 && item.fechap === "" ? 'bg-red-200 text-red-600' : 'bg-green-200 text-green-600'} py-1 px-2 md:px-3 rounded-full text-[10px] md:text-xs`}>
+                            <span className={`${diffDays(item.fechad,item.fechap) > diffDays(item.fechad,item.fechat) && item.fechap === "" ? 'bg-red-200 text-red-600' : 'bg-green-200 text-green-600'} py-1 px-2 md:px-3 rounded-full text-[10px] md:text-xs`}>
                               {diffDays(item.fechad,item.fechap)} días
                             </span>
                           </td>
@@ -236,7 +269,7 @@ export default async function DashboardTable({
                       ) : (
                         <>
                           <td className="py-3 px-3 md:px-6 text-left whitespace-nowrap font-medium">{item.rif}</td>
-                          <td className="py-3 px-3 md:px-6 text-left whitespace-nowrap">{item.nombre}</td>
+                          <td className="py-3 px-3 md:px-6 text-left whitespace-nowrap">{item.cliente}</td>
                           <td className="py-3 px-6 text-left hidden md:table-cell">{item.ciudad}</td>
                           <td className="py-3 px-3 md:px-6 text-center whitespace-nowrap">{item.telefono}</td>
                           <td className="py-3 px-6 text-center hidden md:table-cell">{item.frecuenciaVisita || "-"}</td>

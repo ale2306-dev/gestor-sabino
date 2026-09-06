@@ -2,14 +2,16 @@
 import { useState, ChangeEvent, FormEvent } from "react";
 import { ClientData } from "../lib/definitions";
 
-type ClientType = ClientData & {
+type Client = ClientData & {
   _id?: string | null;
 };
 
-export default function EditClientForm({ initialData }: { initialData: ClientType }) {
+export default function EditClientForm({ initialData }: { initialData: Client }) {
+  
+  // useState para datos del formulario (datos previos)
   const [formData, setFormData] = useState({
     rif: initialData.rif ?? "",
-    nombre: initialData.nombre ?? "",
+    cliente: initialData.cliente ?? "",
     direccion: initialData.direccion ?? "",
     telefono: initialData.telefono ?? "",
     zonaCobranza: initialData.zonaCobranza ?? "",
@@ -18,9 +20,11 @@ export default function EditClientForm({ initialData }: { initialData: ClientTyp
     frecuenciaVisita: initialData.frecuenciaVisita ?? ""
   });
 
+  //useState para Modales
   const [showModal, setShowModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   
+  //Rellenar formulario cada vez que cambia el valor del input
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const name = e.currentTarget.name as keyof ClientData;
     const value = e.currentTarget.value;
@@ -28,6 +32,7 @@ export default function EditClientForm({ initialData }: { initialData: ClientTyp
     setFormData(prev => ({ ...prev, [name]: value }));
   }
     
+  //Enviar formulario actualizado a la base de datos
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -50,10 +55,12 @@ export default function EditClientForm({ initialData }: { initialData: ClientTyp
     }
   } 
 
+  //Desplegar modal de Eliminar
   const handleDeleteClick = () => {
     setShowModal(true);
   }
 
+  //Eliminar elemento de la DB
   const confirmDelete = async () => {
     try {
       const res = await fetch(`/api/clients?rif=${encodeURIComponent(String(initialData.rif))}`, {
@@ -63,7 +70,7 @@ export default function EditClientForm({ initialData }: { initialData: ClientTyp
 
       if (!res.ok) throw new Error(`Error al eliminar: ${res.status}`);
       
-      window.location.href = '..'; 
+      window.location.href = '../?view=clients'; 
     } catch(err) {
       console.error(err);
     } finally {
@@ -75,9 +82,9 @@ export default function EditClientForm({ initialData }: { initialData: ClientTyp
     <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
       <div className="w-full max-w-3xl bg-white shadow-lg rounded-lg overflow-hidden">
         
-        <div className="bg-purple-900 text-white py-4 px-6 flex justify-between items-center">
+        <div className="bg-gray-900 text-white py-4 px-6 flex justify-between items-center">
           <h2 className="text-xl font-semibold uppercase tracking-wider">Editar Cliente</h2>
-          <span className="bg-purple-700 text-xs px-2 py-1 rounded">Editando: {initialData.rif}</span>
+          <span className="bg-gray-700 text-xs px-2 py-1 rounded">Editando: {initialData.rif}</span>
         </div>
 
         <form onSubmit={handleSubmit} className="p-4 md:p-8">
@@ -92,7 +99,7 @@ export default function EditClientForm({ initialData }: { initialData: ClientTyp
                 name="rif"
                 value={formData.rif}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border text-gray-700 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent transition-all"
+                className="w-full px-3 py-2 border text-gray-700 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all"
                 type="text" 
                 required
               />
@@ -104,10 +111,10 @@ export default function EditClientForm({ initialData }: { initialData: ClientTyp
                 Nombre / Razón Social
               </label>
               <input 
-                name="nombre"
-                value={formData.nombre}
+                name="cliente"
+                value={formData.cliente}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border text-gray-700 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent transition-all"
+                className="w-full px-3 py-2 border text-gray-700 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all"
                 type="text" 
                 required
               />
@@ -122,7 +129,7 @@ export default function EditClientForm({ initialData }: { initialData: ClientTyp
                 name="telefono"
                 value={formData.telefono}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border text-gray-700 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent transition-all"
+                className="w-full px-3 py-2 border text-gray-700 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all"
                 type="text" 
                 required
               />
@@ -137,7 +144,7 @@ export default function EditClientForm({ initialData }: { initialData: ClientTyp
                 name="ciudad"
                 value={formData.ciudad}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border text-gray-700 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent transition-all"
+                className="w-full px-3 py-2 border text-gray-700 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all"
                 type="text" 
                 required
               />
@@ -152,7 +159,7 @@ export default function EditClientForm({ initialData }: { initialData: ClientTyp
                 name="zonaCobranza"
                 value={formData.zonaCobranza}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border text-gray-700 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent transition-all"
+                className="w-full px-3 py-2 border text-gray-700 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all"
                 type="text" 
               />
             </div>
@@ -166,7 +173,7 @@ export default function EditClientForm({ initialData }: { initialData: ClientTyp
                 name="frecuenciaVisita"
                 value={formData.frecuenciaVisita}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border text-gray-700 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent transition-all"
+                className="w-full px-3 py-2 border text-gray-700 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all"
                 type="text" 
               />
             </div>
@@ -180,7 +187,7 @@ export default function EditClientForm({ initialData }: { initialData: ClientTyp
                 name="diasVisita"
                 value={formData.diasVisita}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border text-gray-700 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent transition-all"
+                className="w-full px-3 py-2 border text-gray-700 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all"
                 type="text" 
               />
             </div>
@@ -194,7 +201,7 @@ export default function EditClientForm({ initialData }: { initialData: ClientTyp
                 name="direccion"
                 value={formData.direccion}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border text-gray-700 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent transition-all"
+                className="w-full px-3 py-2 border text-gray-700 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all"
                 rows={3} 
                 required
               ></textarea>
@@ -204,7 +211,7 @@ export default function EditClientForm({ initialData }: { initialData: ClientTyp
 
           {/* Botones */}
           <div className="flex flex-col-reverse md:flex-row items-stretch md:items-center justify-end mt-8 gap-4">
-            
+            {/* Eliminar */}
             <button 
               type="button"
               onClick={handleDeleteClick} 
@@ -217,7 +224,8 @@ export default function EditClientForm({ initialData }: { initialData: ClientTyp
               Eliminar
             </button>
 
-            <a href=".." className="w-full md:w-auto">
+            {/* Cancelar */}
+            <a href="../?view=clients" className="w-full md:w-auto">
               <button 
                 type="button" 
                 className="w-full px-6 py-2 text-gray-600 bg-gray-200 hover:bg-gray-300 rounded-lg font-semibold transition-colors"
@@ -226,9 +234,10 @@ export default function EditClientForm({ initialData }: { initialData: ClientTyp
               </button>
             </a>
             
+            {/* Actualizar */}
             <button 
               type="submit" 
-              className="w-full md:w-auto px-6 py-2 bg-purple-900 text-white rounded-lg hover:bg-purple-800 font-semibold shadow-md transform active:scale-95 transition-all flex items-center justify-center"
+              className="w-full md:w-auto px-6 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 font-semibold shadow-md transform active:scale-95 transition-all flex items-center justify-center"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
@@ -240,13 +249,13 @@ export default function EditClientForm({ initialData }: { initialData: ClientTyp
         </form>
       </div>
       
-      {/* Modal de Confirmación */}
+      {/* Desplegar modal de confirmación */}
       {showModal && (
         <div className="fixed inset-0 flex items-center justify-center z-50 p-4 transition-opacity" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
           <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-md">
             <h3 className="text-xl font-bold mb-4 text-gray-800">¿Eliminar cliente?</h3>
             <p className="text-gray-600 mb-6">
-              Estás a punto de eliminar al cliente <strong>{formData.nombre}</strong>. Esta acción no se puede deshacer.
+              Estás a punto de eliminar al cliente <strong>{formData.cliente}</strong>. Esta acción no se puede deshacer.
             </p>
             <div className="flex justify-end space-x-4">
               <button 
@@ -268,7 +277,7 @@ export default function EditClientForm({ initialData }: { initialData: ClientTyp
         </div>
       )}
 
-      {/* Modal de Éxito al Actualizar */}
+      {/* Modal de Success */}
       {showSuccessModal && (
         <div className="fixed inset-0 flex items-center justify-center z-50 p-4 transition-opacity" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
           <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-sm text-center">
@@ -281,16 +290,16 @@ export default function EditClientForm({ initialData }: { initialData: ClientTyp
 
             <h3 className="text-xl font-bold mb-2 text-gray-800">¡Actualización Exitosa!</h3>
             <p className="text-gray-600 mb-6">
-              Los datos de <strong>{formData.nombre}</strong> se guardaron correctamente.
+              Los datos de <strong>{formData.cliente}</strong> se guardaron correctamente.
             </p>
 
             <button 
               type="button"
               onClick={() => {
                 setShowSuccessModal(false);
-                window.location.href = '..'; 
+                window.location.href = '../?view=clients'; 
               }} 
-              className="w-full px-4 py-2 bg-purple-900 text-white rounded-lg hover:bg-purple-800 font-semibold transition-colors"
+              className="w-full px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 font-semibold transition-colors"
             >
               Aceptar
             </button>

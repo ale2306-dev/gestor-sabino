@@ -5,9 +5,10 @@ import { ClientData } from "../lib/definitions";
 
 export default function ClientForm() {
 
+  // useState de datos del formulario
   const [datos, setDatos] = useState<ClientData>({
     rif: "",
-    nombre: "",
+    cliente: "",
     direccion: "",
     telefono: "",
     zonaCobranza: "",
@@ -16,9 +17,11 @@ export default function ClientForm() {
     frecuenciaVisita: ""
   });
   
+  // useState de modales
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // rellenar formulario cada que cambia el valor del input
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const name = e.currentTarget.name as keyof ClientData;
     const value = e.currentTarget.value;
@@ -26,6 +29,7 @@ export default function ClientForm() {
     setDatos(prev => ({ ...prev, [name]: value }));
   }
 
+  // Enviar datos a la DB
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     
@@ -89,8 +93,8 @@ export default function ClientForm() {
               <input 
                 onChange={handleChange}
                 className="w-full px-3 py-2 border text-black border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all"
-                id="nombre"
-                name="nombre"
+                id="cliente"
+                name="cliente"
                 type="text" 
                 placeholder="Nombre del cliente o empresa"
                 required 
@@ -192,8 +196,10 @@ export default function ClientForm() {
 
           </div>
 
+          {/* Botones */}
           <div className="flex items-center justify-end mt-8 space-x-4">
-            <a href=".">
+            {/* Cancelar */}
+            <a href="./?view=clients">
               <button 
               type="button" 
               className="px-6 py-2 text-gray-600 bg-gray-200 hover:bg-gray-300 rounded-lg font-semibold transition-colors"
@@ -201,6 +207,8 @@ export default function ClientForm() {
               Cancelar
             </button>
             </a>
+
+            {/* Subir */}
             <button 
               type="submit" 
               disabled={isSubmitting}
@@ -220,6 +228,7 @@ export default function ClientForm() {
         </form>
       </div>
 
+      {/* Modal de Successs */}
       {showSuccessModal && (
         <div className="fixed inset-0 flex items-center justify-center z-50 transition-opacity" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
           <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-sm text-center">
@@ -232,14 +241,14 @@ export default function ClientForm() {
 
             <h3 className="text-xl font-bold mb-2 text-gray-800">¡Registro Exitoso!</h3>
             <p className="text-gray-600 mb-6">
-              El cliente <strong>{datos.nombre}</strong> se creó correctamente.
+              El cliente <strong>{datos.cliente}</strong> se creó correctamente.
             </p>
 
             <button 
               type="button"
               onClick={() => {
                 setShowSuccessModal(false);
-                window.location.href = '.'; 
+                window.location.href = './?view=clients'; 
               }} 
               className="w-full px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 font-semibold transition-colors"
             >
