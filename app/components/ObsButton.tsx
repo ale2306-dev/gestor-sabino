@@ -82,7 +82,7 @@ export default function ObsButton({ id }: Props) {
     <>
       <button
         onClick={handleClick}
-        className="w-8 h-8 flex items-center justify-center text-gray-600 hover:text-purple-500 transition-colors"
+        className="w-8 h-8 flex items-center justify-center text-gray-600 hover:text-gray-500 transition-colors"
         aria-label="Ver observaciones"
         disabled={loading}
       >
